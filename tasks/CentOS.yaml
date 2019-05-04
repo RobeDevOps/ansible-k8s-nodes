@@ -1,0 +1,63 @@
+---
+- name: getenforce status
+  command: getenforce
+  register: getenforce_result
+  changed_when: "'disabled' not in getenforce_result.stdout|lower"
+
+- name: Set setenforce to zero
+  command: setenforce 0
+  when: getenforce_result is changed
+
+- name: Disable SELINUX property
+  selinux:
+    conf: /etc/selinux/config
+    state: disabled
+  notify: reboot system
+  when: getenforce_result is changed
+
+- name: Ensure modprobe br_netfilter is load
+  shell: |
+    lsmod | grep br_netfilter
+  register: netfilter_load
+  ignore_errors: yes
+  changed_when:
+    - netfilter_load.rc is defined
+    - netfilter_load.rc != 0
+
+- name: Loading modprobe br_netfilter
+  command: modprobe br_netfilter
+  when:
+    - netfilter_load.rc is defined
+    - netfilter_load.rc != 0
+
+- name: Enable iptables forward
+  sysctl:
+    name: "{{ item }}"
+    value: 1
+    state: present
+    reload: yes
+  with_items:
+    - net.bridge.bridge-nf-call-ip6tables
+    - net.bridge.bridge-nf-call-iptables
+
+- name: Verify kubernetes repository exists
+  stat:
+    path: /etc/yum.repos.d/kubernetes.repo
+  register: k8_repo_available
+
+- name: Add kubernetes repositories
+  template:
+    src: kubernetes.repo.j2
+    dest: /etc/yum.repos.d/kubernetes.repo
+
+- name: Install k8s tools
+  yum:
+    name:
+      - kubelet
+      - kubeadm
+      - kubectl
+    state: present
+  when: not ansible_check_mode
+  notify: restart kubelet
+
+- meta: flush_handlers

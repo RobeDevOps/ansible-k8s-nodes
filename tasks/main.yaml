@@ -1,0 +1,3 @@
+---
+- include_tasks: CentOS.yaml
+  when: ansible_distribution in ['CentOS','RedHat']

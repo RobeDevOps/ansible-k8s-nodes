@@ -1,0 +1,22 @@
+galaxy_info:
+  author: Ronberto Cardenas
+  description: Install and configure all the tools required for k8s cluster's nodes
+  company: Own project
+
+  license: BSD
+
+  min_ansible_version: 2.7
+
+  platforms:
+  - name: EL
+    versions:
+    - 7
+
+  galaxy_tags:
+  - k8s
+  - kubernetes
+  - cluster
+  - containers
+  - nodes
+
+dependencies: []
