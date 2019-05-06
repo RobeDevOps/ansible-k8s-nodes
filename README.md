@@ -25,6 +25,26 @@ Dependencies
 
 There is not dependency with other roles by I recommend to use **robedevops.ansible_docker** and **robedevops.ansible_docker_user** with this role. (I always used in that way but that is not required)
 
+Example Inventory
+-----------------
+
+```bash
+master ansible_host=host_ip_address
+worker1 ansible_host=hos_ip_address
+worker2 ansible_host=host_ip_address
+
+[k8s-nodes]
+master
+worker1
+worker2
+
+[all:vars]
+ansible_connection=ssh
+ansible_user=centos
+ansible_ssh_common_args='-o StrictHostKeyChecking=no'
+ansible_ssh_private_key_file=/home/path/to/demo.pem
+```
+
 Example Playbook
 ----------------
 
