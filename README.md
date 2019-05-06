@@ -1,17 +1,24 @@
 robedevops.ansible_k8s_nodes
 =========
 
-This Role installs and configures all the packages and files required by a node in order to be part of the cluster.
+This Role installs and configures all the packages and files required by a node in order to be part of the cluster:
+
+* Set setenforce to zero
+* Disable SELINUX
+* Ensure modprobe br_netfilter
+* Enable iptables forward
+* Add kubernetes repositories
+* Install the packages: kubelet, kubeadm, kubectl
 
 Requirements
 ------------
 
-N/A
+Python is required in order to use ansible module **yum**
 
 Role Variables
 --------------
 
-N/A
+N/A (working on multiple platforms and then define the variables)
 
 Dependencies
 ------------
@@ -24,9 +31,13 @@ Example Playbook
 Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
 
 ```yaml
-    - hosts: nodes
-      roles:
-         - { role: robedevops.ansible_k8s_node }
+- hosts: k8s-nodes
+  gather_facts: yes
+  become: yes
+  roles:
+    - { role: robedevops.ansible_docker, tags: ['docker'] }
+    - { role: robedevops.ansible_docker_user, tags: ['docker-user'] }
+    - { role: robedevops.ansible_k8s_nodes, tags: ['k8s-nodes'] }
 ```
 
 License
